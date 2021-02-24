@@ -1,0 +1,419 @@
+swagger: '2.0'
+info:
+  description: Schnittstelle für Tarifdaten und zum übertragen von Bestellungen
+  version: 0.0.1
+  title: Schnittstelle
+  contact: {}
+host: interface.green-provider.de
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /orders:
+    post:
+      summary: create new order
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/order'
+      responses:
+        '200':
+          description: Status 200
+      description: submit an order
+    x-restlet:
+      section: Order
+  /search-rates:
+    get:
+      summary: get all rates matching the criteria
+      description: find all fitting rates
+      parameters:
+        - name: customerGroup
+          in: query
+          required: false
+          type: string
+          description: Kundengruppe
+          default: private
+          enum:
+            - private
+            - business
+          pattern: ^(private|corporate)$
+        - name: energyType
+          in: query
+          required: true
+          type: string
+          enum:
+            - power
+            - gas
+            - heat-pump
+          default: power
+          pattern: ^(power|gas)$
+          description: Energietyp
+        - name: consumption
+          in: query
+          required: true
+          type: number
+          description: Verbrauch
+          format: int32
+          minimum: 1
+        - name: zipCode
+          in: query
+          required: true
+          type: string
+          description: Postleitzahl
+          pattern: '^[0-9]{5}$'
+        - name: city
+          in: query
+          required: true
+          type: string
+          description: Ort
+      responses:
+        '200':
+          description: Status 200
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/rate'
+    x-restlet:
+      section: Product "switch"
+    parameters: []
+definitions:
+  address:
+    type: object
+    description: Allgemeines Adressen-Modell
+    example:
+      company: ''
+      salutation: mr
+      firstName: Maximilian
+      lastName: Mustermann
+      street: Chapeaurougeweg
+      houseNumber: 32a
+      addition: 3. OG
+      zipCode: '19370'
+      city: Parchim
+    x-restlet:
+      section: General
+    x-examples:
+      example-1:
+        company: ''
+        salutation: mr
+        firstName: Maximilian
+        lastName: Mustermann
+        street: Chapeaurougeweg
+        houseNumber: 32a
+        addition: 3. OG
+        zipCode: '19370'
+        city: Parchim
+    properties:
+      company:
+        type: string
+        description: Firma
+      salutation:
+        type: string
+        description: Ansprache
+        enum:
+          - ms
+          - mr
+      firstName:
+        type: string
+        description: Vorname
+        example: Maximilian
+      lastName:
+        type: string
+        description: Nachname
+        example: Mustermann
+      street:
+        type: string
+        description: Straße
+        example: Chapeaurougeweg
+      houseNumber:
+        type: string
+        description: Hausnummer
+        example: 32a
+      addition:
+        type: string
+        description: Adresszusatz
+        example: 3. OG
+      zipCode:
+        type: string
+        description: Postleitzahl
+        pattern: '^[0-9]{5}$'
+        example: '19370'
+      city:
+        type: string
+        description: Stadt
+        example: Parchim
+    required:
+      - firstName
+      - lastName
+      - street
+      - houseNumber
+      - zipCode
+      - city
+  order:
+    type: object
+    description: Bestellung
+    x-restlet:
+      section: Order
+    x-examples: {}
+    properties:
+      shortId:
+        type: string
+        description: lesbare kurze ID fuer Kunden
+        minLength: 6
+        maxLength: 6
+        pattern: '^[a-z0-9]+$'
+        example: d3ju45
+      createdAt:
+        type: string
+        format: date
+      updatedAt:
+        type: string
+        format: date
+      customerGroup:
+        type: string
+        enum:
+          - private
+          - corporate
+        default: private
+      shippingAddress:
+        $ref: '#/definitions/address'
+      separateBillingAddress:
+        type: boolean
+      billingAddress:
+        $ref: '#/definitions/address'
+      contact:
+        type: object
+        properties:
+          phone:
+            type: string
+          email:
+            type: string
+            format: email
+        required:
+          - email
+      personal:
+        type: object
+        properties:
+          birthday:
+            type: string
+            format: date
+      payment:
+        type: object
+        properties:
+          method:
+            type: string
+            enum:
+              - debit
+          accountDetails:
+            type: object
+            properties:
+              owner:
+                type: string
+              iban:
+                type: string
+              bic:
+                type: string
+              bankName:
+                type: string
+        required:
+          - method
+      searchSettings:
+        type: object
+        properties:
+          energy:
+            type: string
+            enum:
+              - power
+              - gas
+          consumption:
+            type: integer
+          zipCode:
+            type: string
+          city:
+            type: string
+        required:
+          - energy
+          - consumption
+      type:
+        type: string
+        enum:
+          - switch
+          - relocation
+      meter:
+        type: object
+        properties:
+          number:
+            type: string
+          reading:
+            type: object
+            properties:
+              value:
+                type: string
+              date:
+                type: string
+                format: date
+      previousContract:
+        type: object
+        properties:
+          provider:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+          customerId:
+            type: string
+          terminated:
+            type:
+              - string
+              - 'null'
+            format: date
+      desiredDelivery:
+        type: object
+        properties:
+          mode:
+            type: string
+            enum:
+              - asap
+              - date
+          date:
+            type: string
+            format: date
+        required:
+          - mode
+      comparisonRate:
+        type: object
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          provider:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+          price:
+            type: object
+            properties:
+              basePrice:
+                type: string
+              workingPrice:
+                type: string
+      switchRate:
+        type: object
+        properties:
+          name:
+            type: string
+          price:
+            type: object
+            properties:
+              basePrice:
+                type: string
+              workingPrice:
+                type: string
+    required:
+      - shortId
+      - createdAt
+      - updatedAt
+      - customerGroup
+      - separateBillingAddress
+  rate:
+    title: rate
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: object
+        properties:
+          basePrice:
+            type: string
+            description: Grundpreis pro Monat (Netto) als String
+          workingPrice:
+            type: string
+            description: Arbeitspreis pro kWh (Netto) als String
+      terms:
+        type: object
+        properties:
+          priceGuarantee:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              period:
+                $ref: '#/definitions/period'
+          minimumTerm:
+            $ref: '#/definitions/period'
+          cancelationPeriod:
+            $ref: '#/definitions/period'
+      staggeredPrices:
+        type: array
+        items:
+          type: object
+          properties:
+            consumptionMin:
+              type:
+                - array
+                - integer
+              items:
+                type: integer
+            consumptionMax:
+              type:
+                - array
+                - integer
+              items:
+                type: integer
+            basePrice:
+              type: string
+            workingPrice:
+              type: string
+      bonuses:
+        type: array
+        items:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - loyalty
+                - instant
+            calculation:
+              type: string
+              enum:
+                - absolute
+                - consumption-based
+                - percent
+            value:
+              type: string
+  period:
+    title: period
+    type: object
+    properties:
+      unit:
+        type: string
+        enum:
+          - day
+          - week
+          - month
+          - year
+      duration:
+        type: number
+x-restlet:
+  sections:
+    General: {}
+    Account: {}
+    Order: {}
+    Product "switch": {}
+    Subscriptions: {}
+    Service: {}
