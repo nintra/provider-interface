@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
-  description: Schnittstelle für Tarifdaten und zum übertragen von Bestellungen
+  description: Schnittstelle zum Abruf von Tarifdaten und zur Übertragung von Bestellungen
   version: 0.0.1
-  title: Schnittstelle
+  title: Versorger-Schnittstelle
   contact: {}
 host: interface.green-provider.de
 schemes:
