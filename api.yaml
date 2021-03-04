@@ -3,7 +3,9 @@ info:
   description: Schnittstelle zum Abruf von Tarifdaten und zur Übertragung von Bestellungen
   version: 0.0.1
   title: Versorger-Schnittstelle
-  contact: {}
+  contact:
+    name: Oliver Liermann
+    email: oliver.liermann@switch-for-climate.de
 host: interface.green-provider.de
 schemes:
   - https
@@ -14,7 +16,7 @@ produces:
 paths:
   /orders:
     post:
-      summary: create new order
+      summary: Bestellungen
       parameters:
         - in: body
           name: body
@@ -23,13 +25,17 @@ paths:
       responses:
         '200':
           description: Status 200
-      description: submit an order
+          schema: {}
+      description: Übertragung einer Bestellung vom Partner zum Versorger
+      security:
+        - auth: []
+        - partnerId: []
     x-restlet:
       section: Order
   /search-rates:
     get:
-      summary: get all rates matching the criteria
-      description: find all fitting rates
+      summary: Tarifsuche
+      description: Finde alle Tarife die den Parametern entsprechen
       parameters:
         - name: customerGroup
           in: query
@@ -41,14 +47,13 @@ paths:
             - private
             - business
           pattern: ^(private|corporate)$
-        - name: energyType
+        - name: energy
           in: query
           required: true
           type: string
           enum:
             - power
             - gas
-            - heat-pump
           default: power
           pattern: ^(power|gas)$
           description: Energietyp
@@ -77,6 +82,48 @@ paths:
             type: array
             items:
               $ref: '#/definitions/rate'
+          examples:
+            Grüntarif:
+              - id: gruen2021
+                name: Grüner Superstrom
+                price:
+                  basePrice: '9.80'
+                  workingPrice: '28.5'
+                terms:
+                  priceGuarantee:
+                    date: '2021-12-31'
+                    period:
+                      unit: day
+                      duration: 0
+                  minimumTerm:
+                    unit: week
+                    duration: 4
+                  cancelationPeriod:
+                    unit: week
+                    duration: 6
+                  extendedTerm:
+                    unit: month
+                    duration: 1
+                staggeredPrices:
+                  - consumptionMin: 1
+                    consumptionMax: 3000
+                    basePrice: '9.80'
+                    workingPrice: '28.5'
+                  - consumptionMin: 3001
+                    consumptionMax: 50000
+                    basePrice: '9.80'
+                    workingPrice: '27.75'
+                bonuses: []
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties: {}
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties: {}
     x-restlet:
       section: Product "switch"
     parameters: []
@@ -319,6 +366,8 @@ definitions:
                 type: string
               workingPrice:
                 type: string
+          id:
+            type: string
     required:
       - shortId
       - createdAt
@@ -356,6 +405,8 @@ definitions:
           minimumTerm:
             $ref: '#/definitions/period'
           cancelationPeriod:
+            $ref: '#/definitions/period'
+          extendedTerm:
             $ref: '#/definitions/period'
       staggeredPrices:
         type: array
@@ -396,6 +447,7 @@ definitions:
                 - percent
             value:
               type: string
+    description: Tarifmodel
   period:
     title: period
     type: object
@@ -409,6 +461,7 @@ definitions:
           - year
       duration:
         type: number
+    description: Zeitraum
 x-restlet:
   sections:
     General: {}
@@ -417,3 +470,13 @@ x-restlet:
     Product "switch": {}
     Subscriptions: {}
     Service: {}
+securityDefinitions:
+  auth:
+    type: basic
+    description: ''
+  partnerId:
+    type: apiKey
+    in: header
+    name: Partner-Id
+    description: Identifikation des Anfragenden
+responses: {}
