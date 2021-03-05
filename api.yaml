@@ -40,10 +40,6 @@ paths:
             required:
               - state
           examples:
-            'error, insufficient data':
-              state: error
-              errors:
-                - xyz is missing
             success:
               state: success
         '400':
@@ -51,6 +47,11 @@ paths:
           schema:
             type: object
             properties: {}
+          examples:
+            insufficient data:
+              state: error
+              errors:
+                - xyz is missing
         '401':
           description: Unauthorized
           schema:
