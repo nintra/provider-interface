@@ -25,17 +25,56 @@ paths:
       responses:
         '200':
           description: Status 200
-          schema: {}
+          schema:
+            type: object
+            properties:
+              state:
+                type: string
+                enum:
+                  - success
+                  - error
+              errors:
+                type: array
+                items:
+                  type: string
+            required:
+              - state
+          examples:
+            'error, insufficient data':
+              state: error
+              errors:
+                - xyz is missing
+            success:
+              state: success
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties: {}
+        '401':
+          description: Unauthorized
+          schema:
+            type: object
+            properties: {}
+        '500':
+          description: Internal Server Error
+          schema:
+            type: object
+            properties: {}
       description: Übertragung einer Bestellung vom Partner zum Versorger
       security:
-        - auth: []
+        - HTTP Auth: []
         - partnerId: []
+      operationId: create-order
     x-restlet:
       section: Order
   /search-rates:
     get:
       summary: Tarifsuche
-      description: Finde alle Tarife die den Parametern entsprechen
+      description: |-
+        Finde alle Tarife die den Parametern entsprechen.
+
+        Wir haben uns hier im ersten Schritt für eine PLZ/Ort-genaue Abfrage entschieden, um die Komplexität gering zu halten. Es ist möglich dies um eine Netzbetreiber-ID zu erweitern, wenn es von Versorger-Seite erfordert wird.
       parameters:
         - name: customerGroup
           in: query
@@ -82,38 +121,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/rate'
-          examples:
-            Grüntarif:
-              - id: gruen2021
-                name: Grüner Superstrom
-                price:
-                  basePrice: '9.80'
-                  workingPrice: '28.5'
-                terms:
-                  priceGuarantee:
-                    date: '2021-12-31'
-                    period:
-                      unit: day
-                      duration: 0
-                  minimumTerm:
-                    unit: week
-                    duration: 4
-                  cancelationPeriod:
-                    unit: week
-                    duration: 6
-                  extendedTerm:
-                    unit: month
-                    duration: 1
-                staggeredPrices:
-                  - consumptionMin: 1
-                    consumptionMax: 3000
-                    basePrice: '9.80'
-                    workingPrice: '28.5'
-                  - consumptionMin: 3001
-                    consumptionMax: 50000
-                    basePrice: '9.80'
-                    workingPrice: '27.75'
-                bonuses: []
+          examples: {}
         '400':
           description: Bad Request
           schema:
@@ -124,6 +132,7 @@ paths:
           schema:
             type: object
             properties: {}
+      operationId: search-rates
     x-restlet:
       section: Product "switch"
     parameters: []
@@ -357,6 +366,8 @@ definitions:
       switchRate:
         type: object
         properties:
+          id:
+            type: string
           name:
             type: string
           price:
@@ -366,8 +377,6 @@ definitions:
                 type: string
               workingPrice:
                 type: string
-          id:
-            type: string
     required:
       - shortId
       - createdAt
@@ -377,6 +386,7 @@ definitions:
   rate:
     title: rate
     type: object
+    description: Tarifmodel
     properties:
       id:
         type: string
@@ -386,11 +396,11 @@ definitions:
         type: object
         properties:
           basePrice:
-            type: string
-            description: Grundpreis pro Monat (Netto) als String
+            description: Grundpreis pro Monat (Netto)
+            type: number
           workingPrice:
-            type: string
-            description: Arbeitspreis pro kWh (Netto) als String
+            description: Arbeitspreis pro kWh (Netto)
+            type: number
       terms:
         type: object
         properties:
@@ -426,9 +436,9 @@ definitions:
               items:
                 type: integer
             basePrice:
-              type: string
+              type: number
             workingPrice:
-              type: string
+              type: number
       bonuses:
         type: array
         items:
@@ -446,8 +456,61 @@ definitions:
                 - consumption-based
                 - percent
             value:
+              type: number
+      energyMix:
+        type: array
+        items:
+          type: object
+          properties:
+            source:
               type: string
-    description: Tarifmodel
+              enum:
+                - wind
+                - solar
+                - hydro
+                - geothermal
+                - biomass
+            percent:
+              type: number
+    x-examples:
+      Grüntarif:
+        - id: gruen2021
+          name: Grüner Superstrom
+          price:
+            basePrice: 9.8
+            workingPrice: 28.5
+          terms:
+            priceGuarantee:
+              date: '2021-12-31'
+              period:
+                unit: day
+                duration: 0
+            minimumTerm:
+              unit: week
+              duration: 4
+            cancelationPeriod:
+              unit: week
+              duration: 6
+            extendedTerm:
+              unit: month
+              duration: 1
+          staggeredPrices:
+            - consumptionMin: 1
+              consumptionMax: 3000
+              basePrice: 9.8
+              workingPrice: 28.5
+            - consumptionMin: 3001
+              consumptionMax: 50000
+              basePrice: 9.8
+              workingPrice: 27.75
+          bonuses: []
+          energyMix:
+            - source: solar
+              percent: 12
+            - source: wind
+              percent: 42.5
+            - source: hydro
+              percent: 45.5
   period:
     title: period
     type: object
@@ -471,7 +534,7 @@ x-restlet:
     Subscriptions: {}
     Service: {}
 securityDefinitions:
-  auth:
+  HTTP Auth:
     type: basic
     description: ''
   partnerId:
@@ -480,3 +543,5 @@ securityDefinitions:
     name: Partner-Id
     description: Identifikation des Anfragenden
 responses: {}
+security:
+  - auth: []
