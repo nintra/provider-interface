@@ -217,11 +217,11 @@ definitions:
       section: Order
     x-examples: {}
     properties:
-      shortId:
+      refId:
         type: string
-        description: lesbare kurze ID fuer Kunden
+        description: kurze lesbare Referenz-ID
         minLength: 6
-        maxLength: 6
+        maxLength: 10
         pattern: '^[a-z0-9]+$'
         example: d3ju45
       createdAt:
