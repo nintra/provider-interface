@@ -219,7 +219,7 @@ definitions:
     properties:
       refId:
         type: string
-        description: kurze lesbare Referenz-ID test
+        description: kurze lesbare Referenz-ID
         minLength: 6
         maxLength: 10
         pattern: '^[a-z0-9]+$'
