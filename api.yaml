@@ -219,7 +219,7 @@ definitions:
     properties:
       refId:
         type: string
-        description: kurze lesbare Referenz-ID
+        description: kurze lesbare Referenz-ID test
         minLength: 6
         maxLength: 10
         pattern: '^[a-z0-9]+$'
@@ -379,7 +379,6 @@ definitions:
               workingPrice:
                 type: string
     required:
-      - shortId
       - createdAt
       - updatedAt
       - customerGroup
