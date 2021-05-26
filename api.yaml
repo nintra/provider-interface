@@ -327,11 +327,10 @@ definitions:
                 type: string
           customerId:
             type: string
-          terminated:
-            type:
-              - string
-              - 'null'
+          cancellationDate:
+            type: string
             format: date
+            x-nullable: true
       desiredDelivery:
         type: object
         properties:
