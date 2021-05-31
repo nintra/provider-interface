@@ -267,11 +267,10 @@ definitions:
             type: string
             enum:
               - debit
+              - transfer
           accountDetails:
             type: object
             properties:
-              owner:
-                type: string
               iban:
                 type: string
               bic:
@@ -283,6 +282,12 @@ definitions:
       searchSettings:
         type: object
         properties:
+          customerGroup:
+            type: string
+            enum:
+              - private
+              - corporate
+            default: private
           energy:
             type: string
             enum:
@@ -290,13 +295,23 @@ definitions:
               - gas
           consumption:
             type: integer
+          street:
+            type: string
           zipCode:
             type: string
           city:
             type: string
+          state:
+            type: string
+          operatorId:
+            type: string
         required:
+          - customerGroup
           - energy
           - consumption
+          - zipCode
+          - city
+          - operatorId
       type:
         type: string
         enum:
@@ -305,8 +320,21 @@ definitions:
       meter:
         type: object
         properties:
-          number:
-            type: string
+          id:
+            type: object
+            required:
+              - type
+            properties:
+              type:
+                type: string
+                enum:
+                  - number
+                  - maLoId
+                default: number
+              number:
+                type: string
+              maLoId:
+                type: string
           reading:
             type: object
             properties:
@@ -315,6 +343,8 @@ definitions:
               date:
                 type: string
                 format: date
+        required:
+          - id
       previousContract:
         type: object
         properties:
@@ -327,10 +357,17 @@ definitions:
                 type: string
           customerId:
             type: string
-          cancellationDate:
-            type: string
+          cancellation:
             format: date
-            x-nullable: true
+            type: object
+            properties:
+              instructed:
+                type: boolean
+                default: false
+              date:
+                type: string
+            required:
+              - instructed
       desiredDelivery:
         type: object
         properties:
