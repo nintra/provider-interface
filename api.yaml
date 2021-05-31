@@ -358,7 +358,6 @@ definitions:
           customerId:
             type: string
           cancellation:
-            format: date
             type: object
             properties:
               instructed:
@@ -366,6 +365,7 @@ definitions:
                 default: false
               date:
                 type: string
+                format: date
             required:
               - instructed
       desiredDelivery:
