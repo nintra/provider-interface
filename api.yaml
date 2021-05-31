@@ -277,6 +277,9 @@ definitions:
                 type: string
               bankName:
                 type: string
+              separateAddress:
+                type: boolean
+                default: false
               address:
                 $ref: '#/definitions/address'
         required:
