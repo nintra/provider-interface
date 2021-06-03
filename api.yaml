@@ -386,11 +386,23 @@ definitions:
             format: date
         required:
           - mode
-      comparisonRate:
+      switchRate:
         type: object
         properties:
           id:
             type: string
+          name:
+            type: string
+          price:
+            type: object
+            properties:
+              basePrice:
+                type: number
+              workingPrice:
+                type: number
+      comparisonRate:
+        type: object
+        properties:
           name:
             type: string
           provider:
@@ -404,23 +416,9 @@ definitions:
             type: object
             properties:
               basePrice:
-                type: string
+                type: number
               workingPrice:
-                type: string
-      switchRate:
-        type: object
-        properties:
-          id:
-            type: string
-          name:
-            type: string
-          price:
-            type: object
-            properties:
-              basePrice:
-                type: string
-              workingPrice:
-                type: string
+                type: number
     required:
       - createdAt
       - updatedAt
