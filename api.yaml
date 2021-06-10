@@ -156,11 +156,15 @@ definitions:
     x-examples:
       example-1:
         company: ''
-        salutation: mr
+        salutation: neutral
         firstName: Maximilian
         lastName: Mustermann
+        streetAddress: Chapeaurougeweg 32a
         street: Chapeaurougeweg
         houseNumber: 32a
+        houseNumberParts:
+          number: '32'
+          addition: a
         addition: 3. OG
         zipCode: '19370'
         city: Parchim
@@ -184,6 +188,8 @@ definitions:
         type: string
         description: Nachname
         example: Mustermann
+      streetAddress:
+        type: string
       street:
         type: string
         description: Straße
@@ -192,6 +198,13 @@ definitions:
         type: string
         description: Hausnummer
         example: 32a
+      houseNumberParts:
+        type: object
+        properties:
+          number:
+            type: string
+          addition:
+            type: string
       addition:
         type: string
         description: Adresszusatz
@@ -260,6 +273,7 @@ definitions:
           birthday:
             type: string
             format: date
+            x-nullable: true
       payment:
         type: object
         properties:
@@ -348,6 +362,7 @@ definitions:
               date:
                 type: string
                 format: date
+                x-nullable: true
         required:
           - id
       previousContract:
@@ -384,6 +399,7 @@ definitions:
           date:
             type: string
             format: date
+            x-nullable: true
         required:
           - mode
       switchRate:
@@ -402,6 +418,7 @@ definitions:
                 type: number
       comparisonRate:
         type: object
+        x-nullable: true
         properties:
           name:
             type: string
