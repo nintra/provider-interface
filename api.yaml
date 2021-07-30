@@ -414,8 +414,10 @@ definitions:
             properties:
               basePrice:
                 type: number
+                description: base price per year (brutto) in euro
               workingPrice:
                 type: number
+                description: working price per kWh (brutto) in euro cents
       comparisonRate:
         type: object
         x-nullable: true
@@ -432,8 +434,10 @@ definitions:
             properties:
               basePrice:
                 type: number
+                description: base price per year (brutto) in euro
               workingPrice:
                 type: number
+                description: working price per kWh (brutto) in euro cents
     required:
       - createdAt
       - updatedAt
